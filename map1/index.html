@@ -159,32 +159,36 @@
     </div>
 
     <script>
-        // Add click event listeners to each path
-        var paths = document.querySelectorAll('svg path');
-        paths.forEach(function(path) {
-            path.addEventListener('click', function(event) {
-                // Clear the table
-                var table = document.getElementById('weatherData').getElementsByTagName('tbody')[0];
-                table.innerHTML = '';
-    
-                // Extract data from the clicked path (you may need to define data attributes in your SVG)
-                var humidity = parseFloat(path.getAttribute('data-humidity'));
-                var wind = parseFloat(path.getAttribute('data-wind'));
-                var temperature = parseFloat(path.getAttribute('data-temperature'));
-    
-                // Append data to the table
-                var newRow = table.insertRow(0); // Insert at the beginning
-                var locationCell = newRow.insertCell(0);
-                var humidityCell = newRow.insertCell(1);
-                var windCell = newRow.insertCell(2);
-                var temperatureCell = newRow.insertCell(3);
-    
-                locationCell.textContent = path.getAttribute('xlink:title');
-                humidityCell.textContent = humidity;
-                windCell.textContent = wind;
-                temperatureCell.textContent = temperature;
-            });
-        });
+        async function fetchWeatherData(district) {
+    try {
+        const response = await fetch(`https://slweather.azurewebsites.net/weather/${district}`);
+        if (!response.ok) {
+            alert('Network response was not ok');
+            return null; // Return null to handle the error
+        }
+        const data = await response.json();
+        displayWeatherInfo(district, data); // Pass data to display function
+    } catch (error) {
+        alert('Error fetching weather data:', error);
+        return null;
+    }
+}
+
+function displayWeatherInfo(district, data) {
+    if (data && data.length > 0) { // Check if data exists and is not empty
+        const weatherData = data[0]; // Access the first element of the array
+        document.getElementById("weatherDataBody").innerHTML = `
+            <tr>
+                <td>${district}</td>
+                <td>${weatherData.humidity}</td>
+                <td>${weatherData.air}</td>
+                <td>${weatherData.temp}</td>
+            </tr>
+        `;
+    } else {
+        document.getElementById("weatherData").innerHTML = "<p>Weather data not available.</p>";
+    }
+}
     </script>
 
     </div>
